@@ -8,10 +8,15 @@ public class PlayerControllerOC : MonoBehaviour
     public Rigidbody Rigidbody;
     public GroundedCheckerOC GroundedChecker;
     public WallContactCheckerOC WallContactChecker;
+
     [Range(0,10)]
     public float HorizontalMovementSpeed =1;
     [Range(0,500)]
-    public float JumpPower =1;
+    public float UpJumpPower =1;
+    [Range(0,500)]
+    public float WallJumpNormalPower =1;
+    [Range(0,500)]
+    public float WallJumpPerpendicularPower =1;
 
     private int _doubleJumpAttemptsLeft;
 
@@ -53,8 +58,15 @@ public class PlayerControllerOC : MonoBehaviour
 
     private void WallJump()
     {
-        var collisionWallNormal = WallContactChecker.RetriveAndClearContactNormal();
-        Jump(collisionWallNormal);
+        var collisionWallNormal = WallContactChecker.RetriveAndClearContactNormal().XZComponent();
+        var perpVector = Vector2.Perpendicular(collisionWallNormal);
+        var velocityOnNormalComponent = VectorUtils.Project(Rigidbody.velocity, collisionWallNormal);
+        var velocityOnPerpendicularComponent = VectorUtils.Project(Rigidbody.velocity, perpVector);
+
+        var finalFlatVelocity =  perpVector * velocityOnPerpendicularComponent;
+        Rigidbody.velocity = new Vector3(finalFlatVelocity.x,0,finalFlatVelocity.y);
+
+        Jump(collisionWallNormal*WallJumpNormalPower);
         JumpUp();
         Debug.Log("Wall jumping");
 
@@ -67,6 +79,6 @@ public class PlayerControllerOC : MonoBehaviour
 
     private void Jump(Vector3 direction)
     {
-        Rigidbody.AddForce(direction * JumpPower);
+        Rigidbody.AddForce(direction * UpJumpPower);
     }
 }

@@ -11,8 +11,8 @@ namespace Assets.Scripts
     public class MonocolorMaterialColorSetterOC : MonoBehaviour
     {
         public Color Color;
-        private MaterialPropertyBlock _propBlock;
-        private Renderer _renderer;
+        private List<MaterialPropertyBlock> _propBlocks;
+        private List<Renderer> _renderers;
 
         public void Awake()
         {
@@ -22,21 +22,31 @@ namespace Assets.Scripts
         public void OnValidate()
         {
             AffirmRenderingFieldsAreSet();
-            _renderer.GetPropertyBlock(_propBlock);
-            _propBlock.SetColor("_Color", Color);
-            _renderer.SetPropertyBlock(_propBlock);
+            _renderers.Select((c, i) => new {renderer=c, index=i}).ToList().ForEach(c => 
+            {
+                var block = _propBlocks[c.index];
+                c.renderer.GetPropertyBlock(block);
+                block.SetColor("_Color", Color);
+                c.renderer.SetPropertyBlock(block);
+            });
         }
 
         private void AffirmRenderingFieldsAreSet()
         {
-            if (_propBlock == null)
+            if (_renderers == null)
             {
-                _propBlock = new MaterialPropertyBlock();
+                _renderers = GetComponentsInChildren<Renderer>().ToList();
+                var outRenderer = GetComponent<Renderer>();
+                if (outRenderer != null)
+                {
+                    _renderers.Add(outRenderer);
+
+                }
             }
 
-            if (_renderer == null)
+            if (_propBlocks == null)
             {
-                _renderer = GetComponent<Renderer>();
+                _propBlocks = Enumerable.Range(0, _renderers.Count).Select(c => new MaterialPropertyBlock()).ToList();
             }
         }
     }
