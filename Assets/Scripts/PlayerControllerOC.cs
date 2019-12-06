@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Assets.Scripts;
 using UnityEngine;
 
-public class PlayerControllerOC : MonoBehaviour
+public class PlayerControllerOC : ReactingOnPlayerDeath
 {
     public Rigidbody Rigidbody;
     public GroundedCheckerOC GroundedChecker;
@@ -85,5 +85,10 @@ public class PlayerControllerOC : MonoBehaviour
     private void Jump(Vector3 vec)
     {
         Rigidbody.AddForce(vec);
+    }
+
+    public override void PlayerIsDead()
+    {
+        Rigidbody.velocity = Vector3.zero;
     }
 }

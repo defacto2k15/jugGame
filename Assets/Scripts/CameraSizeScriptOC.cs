@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class CameraSizeScriptOC : MonoBehaviour
+    public class CameraSizeScriptOC : ReactingOnPlayerDeath
     {
         public Camera CameraComponent;
         public Rigidbody PlayerRigidbody;
@@ -19,13 +19,13 @@ namespace Assets.Scripts
 
         void Start()
         {
-            _samplesCount = new Queue<float>(Enumerable.Range(0,30).Select(c=>SizeLimits.x));
+            ResetSamplesCount();
         }
 
         void Update()
         {
-            var delta = new Vector2(transform.position.x, transform.position.z) -
-                        new Vector2(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.z);
+            var delta = new Vector2(transform.position.x, transform.position.y) -
+                        new Vector2(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.y);
             delta.y *= ((float)Screen.width) / Screen.height;
 
             var flatDistance = delta.magnitude;
@@ -43,5 +43,14 @@ namespace Assets.Scripts
             CameraComponent.orthographicSize = finalSize;
         }
 
+        public override void PlayerIsDead()
+        {
+            ResetSamplesCount();
+        }
+
+        private void ResetSamplesCount()
+        {
+            _samplesCount = new Queue<float>(Enumerable.Range(0,30).Select(c=>SizeLimits.x));
+        }
     }
 }
