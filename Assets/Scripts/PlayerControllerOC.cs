@@ -9,16 +9,13 @@ public class PlayerControllerOC : MonoBehaviour
     public GroundedCheckerOC GroundedChecker;
     public WallContactCheckerOC WallContactChecker;
 
-    [Range(0,10)]
-    public float HorizontalMovementSpeed =1;
-    [Range(0,500)]
-    public float UpJumpPower =1;
-    [Range(0,500)]
-    public float WallJumpNormalPower =1;
-    [Range(0,500)]
-    public float WallJumpPerpendicularPower =1;
+    [Range(0, 10)] public float HorizontalMovementSpeed = 1;
+    [Range(0, 500)] public float UpJumpPower = 1;
+    [Range(0, 500)] public float WallJumpNormalPower = 1;
+    [Range(0, 500)] public float WallJumpPerpendicularPower = 1;
 
     private int _doubleJumpAttemptsLeft;
+    private float _lastFloorJumpTime;
 
     public void Start()
     {
@@ -28,26 +25,32 @@ public class PlayerControllerOC : MonoBehaviour
     void Update()
     {
         float horizontalMovement = Input.GetAxis("Horizontal");
-        Rigidbody.AddTorque(Vector3.back* horizontalMovement * HorizontalMovementSpeed);
+        Rigidbody.AddTorque(Vector3.back * horizontalMovement * HorizontalMovementSpeed);
 
 
-        if (GroundedChecker.IsGrounded)
+        if (GroundedChecker.IsTouchingGround)
         {
             _doubleJumpAttemptsLeft = Constants.PlayerDoubleJumpAttemptsDefaultCount;
+            _lastFloorJumpTime = 0;
         }
 
         if (Input.GetButtonDown("Jump"))
         {
-            if (GroundedChecker.IsGrounded)
+            if(GroundedChecker.IsNearGround && Mathf.Abs(_lastFloorJumpTime - Time.time) > Constants.PlayerFloorJumpReloadTime)
             {
-                JumpUp();
+                if (_lastFloorJumpTime > 0.0001)
+                {
+                    Debug.Log("Delta is "+Mathf.Abs(_lastFloorJumpTime - Time.time) );
+                }
+                FloorJump();
             }
             else
             {
                 if (WallContactChecker.HasActiveContact)
                 {
                     WallJump();
-                }else if (_doubleJumpAttemptsLeft > 0)
+                }
+                else if (_doubleJumpAttemptsLeft > 0)
                 {
                     //JumpUp();
                     _doubleJumpAttemptsLeft--;
@@ -63,22 +66,24 @@ public class PlayerControllerOC : MonoBehaviour
         var velocityOnNormalComponent = VectorUtils.Project(Rigidbody.velocity, collisionWallNormal);
         var velocityOnPerpendicularComponent = VectorUtils.Project(Rigidbody.velocity, perpVector);
 
-        var finalFlatVelocity =  perpVector * velocityOnPerpendicularComponent;
-        Rigidbody.velocity = new Vector3(finalFlatVelocity.x,0,finalFlatVelocity.y);
+        var finalFlatVelocity = perpVector * velocityOnPerpendicularComponent;
+        Rigidbody.velocity = new Vector3(finalFlatVelocity.x, 0, finalFlatVelocity.y);
 
-        Jump(collisionWallNormal*WallJumpNormalPower);
-        JumpUp();
+        Jump(collisionWallNormal * WallJumpNormalPower);
+        Jump(Vector3.up * WallJumpPerpendicularPower);
         Debug.Log("Wall jumping");
 
     }
 
-    private void JumpUp()
+    private void FloorJump()
     {
-        Jump(Vector3.up);
+        Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0, Rigidbody.velocity.z);
+        _lastFloorJumpTime = Time.time;
+        Jump(Vector3.up * UpJumpPower);
     }
 
-    private void Jump(Vector3 direction)
+    private void Jump(Vector3 vec)
     {
-        Rigidbody.AddForce(direction * UpJumpPower);
+        Rigidbody.AddForce(vec);
     }
 }

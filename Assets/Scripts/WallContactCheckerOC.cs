@@ -20,10 +20,8 @@ namespace Assets.Scripts
 
         void OnTriggerEnter(Collider other)
         {
-            Debug.Log("Trigger enter");
             if (other.gameObject.tag.Equals(Constants.WallTriggerTag))
             {
-                Debug.Log("Enter collision");
                 var wallFace = other.gameObject.GetComponent<JumpableWallFaceOC>();
                 Assert.IsNotNull(wallFace);
                 _currentJumpableWalls.Add(new JumpableWallWithEntryTime()
@@ -37,10 +35,8 @@ namespace Assets.Scripts
 
         void OnTriggerExit(Collider other)
         {
-            Debug.Log("Trigger exit");
             if (other.gameObject.tag.Equals(Constants.WallTriggerTag))
             {
-                Debug.Log("Exit collision");
                 var wallFace = other.gameObject.GetComponent<JumpableWallFaceOC>();
                 Assert.IsNotNull(wallFace);
                 _currentJumpableWalls = _currentJumpableWalls.Where(c => !c.Wall.Equals(wallFace)).ToList();

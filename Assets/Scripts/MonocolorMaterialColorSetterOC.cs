@@ -10,6 +10,7 @@ namespace Assets.Scripts
     [ExecuteInEditMode]
     public class MonocolorMaterialColorSetterOC : MonoBehaviour
     {
+        public bool SetInChildren = true;
         public Color Color;
         private List<MaterialPropertyBlock> _propBlocks;
         private List<Renderer> _renderers;
@@ -35,11 +36,15 @@ namespace Assets.Scripts
         {
             if (_renderers == null)
             {
-                _renderers = GetComponentsInChildren<Renderer>().ToList();
-                var outRenderer = GetComponent<Renderer>();
-                if (outRenderer != null)
+                _renderers = new List<Renderer>();
+                if (SetInChildren)
                 {
-                    _renderers.Add(outRenderer);
+                    _renderers.AddRange(GetComponentsInChildren<Renderer>().ToList());
+                }
+                var ourRenderer = GetComponent<Renderer>();
+                if (ourRenderer != null)
+                {
+                    _renderers.Add(ourRenderer);
 
                 }
             }
