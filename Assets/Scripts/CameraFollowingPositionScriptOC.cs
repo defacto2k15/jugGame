@@ -9,30 +9,30 @@ namespace Assets.Scripts
 {
     class CameraFollowingPositionScriptOC : ReactingOnPlayerDeath
     {
+        public float FollowingSpeed = 1;
         public GameObject Target;
-        private Queue<Vector2> _samplesCount;
 
         void Start()
         {
-            ResetSamples();
+            ResetPosition();
         }
         public override void PlayerIsDead()
         {
-            ResetSamples();
+            ResetPosition();
         }
 
-        private void ResetSamples()
+        private void ResetPosition()
         {
-            _samplesCount = new Queue<Vector2>(Enumerable.Range(0, 30).Select(c => Target.transform.position.XYComponent()).ToList());
+            transform.position = new Vector3(Target.transform.position.x, Target.transform.position.y, transform.position.z);
         }
 
         public void Update()
         {
-            _samplesCount.Dequeue();
-            _samplesCount.Enqueue( Target.transform.position.XYComponent());
-
-            var avgPosition = new Vector2(_samplesCount.Select(c => c.x).Average(), _samplesCount.Select(c => c.y).Average());
-            transform.position = new Vector3(avgPosition.x, avgPosition.y, transform.position.z);
+            transform.position = Vector3.Lerp(
+                new Vector3(Target.transform.position.x, Target.transform.position.y, transform.position.z),
+                transform.position,
+                1 - Time.deltaTime*FollowingSpeed
+            );
         }
     }
 }
