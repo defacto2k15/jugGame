@@ -9,6 +9,7 @@ namespace Assets.Scripts
 {
     public static class Constants
     {
+        public static string PlayerTag = "Player";
         public static string FloorTag = "Floor";
         public static string FloorTriggerTag = "FloorTrigger";
         public static int PlayerDoubleJumpAttemptsDefaultCount = 1;

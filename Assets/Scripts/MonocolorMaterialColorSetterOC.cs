@@ -17,19 +17,31 @@ namespace Assets.Scripts
 
         public void Awake()
         {
-            AffirmRenderingFieldsAreSet();
+            ChangeColorsToMatchFieldValue();
         }
 
         public void OnValidate()
         {
+            ChangeColorsToMatchFieldValue();
+        }
+
+        private void ChangeColorsToMatchFieldValue()
+        {
             AffirmRenderingFieldsAreSet();
-            _renderers.Select((c, i) => new {renderer=c, index=i}).ToList().ForEach(c => 
+            _renderers.Select((c, i) => new {renderer = c, index = i}).ToList().ForEach(c =>
             {
+                Debug.Log("Setting");
                 var block = _propBlocks[c.index];
                 c.renderer.GetPropertyBlock(block);
                 block.SetColor("_Color", Color);
                 c.renderer.SetPropertyBlock(block);
             });
+        }
+
+        public void SetColor(Color color)
+        {
+            Color = color;
+            ChangeColorsToMatchFieldValue();
         }
 
         private void AffirmRenderingFieldsAreSet()

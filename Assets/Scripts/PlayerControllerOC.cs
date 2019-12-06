@@ -22,7 +22,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
         _doubleJumpAttemptsLeft = 0;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         float horizontalMovement = Input.GetAxis("Horizontal");
         Rigidbody.AddTorque(Vector3.back * horizontalMovement * HorizontalMovementSpeed);
@@ -61,7 +61,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
     private void WallJump()
     {
-        var collisionWallNormal = WallContactChecker.RetriveAndClearContactNormal().XYComponent();
+        var collisionWallNormal = WallContactChecker.RetriveAndClearContactNormal().XZComponent();
         var perpVector = Vector2.Perpendicular(collisionWallNormal);
         var velocityOnNormalComponent = VectorUtils.Project(Rigidbody.velocity, collisionWallNormal);
         var velocityOnPerpendicularComponent = VectorUtils.Project(Rigidbody.velocity, perpVector);
