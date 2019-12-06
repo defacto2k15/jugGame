@@ -7,71 +7,13 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class KeyScriptOC : ReactingOnPlayerDeath
+    public class KeyScriptOC : MonoBehaviour
     {
-        public Color NotConnectedColor;
-        public Color PlayerConnectedColor;
-        public Color DoorConnectedColor;
+        public KeyBoxScriptOC KeyBox;
 
-        private KeyMode _mode;
-
-        void Start()
+        public void AchievedKeyhole()
         {
-            _mode = KeyMode.NotConnected;
-            SetColor();
-        }
-
-        private void SetColor()
-        {
-            Color colorToSet;
-            if (_mode == KeyMode.NotConnected)
-            {
-                colorToSet = NotConnectedColor;
-            }else if (_mode == KeyMode.ConnectedToPlayer)
-            {
-                colorToSet = PlayerConnectedColor;
-            }
-            else
-            {
-                colorToSet = DoorConnectedColor;
-            }
-
-            GetComponentInChildren<MonocolorMaterialColorSetterOC>().SetColor( colorToSet);
-        }
-
-        public override void PlayerIsDead()
-        {
-            var possibleJoint = GetComponent<SpringJoint>();
-            if (possibleJoint != null)
-            {
-                GameObject.Destroy(possibleJoint);
-            }
-        }
-
-        void OnTriggerEnter(Collider other)
-        {
-            Debug.Log("TE "+other.gameObject.tag);
-            if (other.gameObject.tag.Equals(Constants.PlayerTag))
-            {
-                if(_mode == KeyMode.NotConnected)
-                {
-                    var joint = gameObject.AddComponent<SpringJoint>();
-                    joint.autoConfigureConnectedAnchor = false;
-                    joint.spring = 1;
-                    joint.damper = 0.2f;
-                    joint.connectedBody = other.gameObject.GetComponent<Rigidbody>();
-                    joint.connectedAnchor = Vector3.zero;
-                    joint.connectedMassScale = 0.0001f;
-
-                    _mode = KeyMode.ConnectedToPlayer;
-                    SetColor();
-                }
-            };
-        }
-
-        enum KeyMode
-        {
-            NotConnected, ConnectedToPlayer,FlyingToDoor, InPlaceInDoor
+            KeyBox.AchievedKeyhole();
         }
     }
 }

@@ -9,7 +9,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
     public GroundedCheckerOC GroundedChecker;
     public WallContactCheckerOC WallContactChecker;
 
-    [Range(0, 10)] public float HorizontalMovementSpeed = 1;
+    [Range(0, 100)] public float HorizontalMovementSpeed = 1;
     [Range(0, 500)] public float UpJumpPower = 1;
     [Range(0, 500)] public float WallJumpNormalPower = 1;
     [Range(0, 500)] public float WallJumpPerpendicularPower = 1;

@@ -30,7 +30,6 @@ namespace Assets.Scripts
             AffirmRenderingFieldsAreSet();
             _renderers.Select((c, i) => new {renderer = c, index = i}).ToList().ForEach(c =>
             {
-                Debug.Log("Setting");
                 var block = _propBlocks[c.index];
                 c.renderer.GetPropertyBlock(block);
                 block.SetColor("_Color", Color);
