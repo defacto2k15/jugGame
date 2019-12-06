@@ -14,6 +14,10 @@ namespace Assets.Scripts
         public GameObject PlayerStartMarker;
         public GameObject CameraObject;
 
+        public void Start()
+        {
+            Player.gameObject.transform.position = PlayerStartMarker.transform.position;
+        }
         public void Update()
         {
             if (Player.transform.position.y < DeathZoneY || Input.GetKeyDown(KeyCode.T))

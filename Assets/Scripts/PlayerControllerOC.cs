@@ -36,11 +36,11 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
         if (Input.GetButtonDown("Jump"))
         {
-            if(GroundedChecker.IsNearGround && Mathf.Abs(_lastFloorJumpTime - Time.time) > Constants.PlayerFloorJumpReloadTime)
+            if(GroundedChecker.IsNearGround && Mathf.Abs(Time.time - _lastFloorJumpTime ) > Constants.PlayerFloorJumpReloadTime)
             {
-                if (_lastFloorJumpTime > 0.0001)
+                if (_lastFloorJumpTime > 0)
                 {
-                    Debug.Log("Delta is "+Mathf.Abs(_lastFloorJumpTime - Time.time) );
+                    Debug.Log("Rtti");
                 }
                 FloorJump();
             }

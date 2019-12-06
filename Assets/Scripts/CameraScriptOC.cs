@@ -28,9 +28,9 @@ namespace Assets.Scripts
 
         void Update()
         {
-            //CameraComponent.orthographicSize = CalculateSize();
-            //transform.position = CalculatePosition();
-            //AffirmCameraInVisibleSpace();
+            CameraComponent.orthographicSize = CalculateSize();
+            transform.position = CalculatePosition();
+            AffirmCameraInVisibleSpace();
         }
 
         private float CalculateSize()

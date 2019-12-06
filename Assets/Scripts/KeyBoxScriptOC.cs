@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Assets.Scripts
 {
@@ -41,6 +42,14 @@ namespace Assets.Scripts
 
         public override void PlayerIsDead()
         {
+            if (_mode == KeyMode.ConnectedToPlayer)
+            {
+                RemoveOldJoint();
+            }
+        }
+
+        private void RemoveOldJoint()
+        {
             var possibleJoint = GetComponent<SpringJoint>();
             if (possibleJoint != null)
             {
@@ -54,18 +63,39 @@ namespace Assets.Scripts
             {
                 if(_mode == KeyMode.NotConnected)
                 {
-                    var joint = gameObject.AddComponent<SpringJoint>();
-                    joint.autoConfigureConnectedAnchor = false;
-                    joint.spring = 1;
-                    joint.damper = 0.2f;
-                    joint.connectedBody = other.gameObject.GetComponent<Rigidbody>();
-                    joint.connectedAnchor = Vector3.zero;
-                    joint.connectedMassScale = 0.0001f;
+                    var targetRigidbody = other.gameObject.GetComponent<Rigidbody>();
+                    CreateSpringJoint(targetRigidbody);
 
                     _mode = KeyMode.ConnectedToPlayer;
                     SetColor();
                 }
-            };
+            }
+            else if (other.gameObject.tag.Equals(Constants.KeyHoleTag))
+            {
+                if (_mode == KeyMode.ConnectedToPlayer)
+                {
+                    RemoveOldJoint();
+
+                    var targetRigidbody = other.gameObject.GetComponent<Rigidbody>();
+                    CreateSpringJoint(targetRigidbody);
+
+                    _mode = KeyMode.FlyingToDoor;
+                    SetColor();
+                }
+
+            }
+        }
+
+        private void CreateSpringJoint(Rigidbody targetRigidbody)
+        {
+            Assert.IsNotNull(targetRigidbody);
+            var joint = gameObject.AddComponent<SpringJoint>();
+            joint.autoConfigureConnectedAnchor = false;
+            joint.spring = 1;
+            joint.damper = 0.2f;
+            joint.connectedBody = targetRigidbody;
+            joint.connectedAnchor = Vector3.zero;
+            joint.connectedMassScale = 0.0001f;
         }
 
         enum KeyMode

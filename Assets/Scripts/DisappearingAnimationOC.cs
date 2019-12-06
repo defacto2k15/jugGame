@@ -31,10 +31,8 @@ namespace Assets.Scripts
             if (_animationStarted)
             {
                 var animationFactor = (Time.time - _startTime) / AnimationDuration;
-                    Debug.Log("AF "+animationFactor);
                 if (animationFactor > 1)
                 {
-                    Debug.Log("DESTROYING");
                     GameObject.Destroy(gameObject);
                 }
                 else

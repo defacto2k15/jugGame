@@ -9,6 +9,7 @@ TagManager:
   - WallTrigger
   - FloorTrigger
   - Key
+  - DoorBox
   layers:
   - Default
   - TransparentFX

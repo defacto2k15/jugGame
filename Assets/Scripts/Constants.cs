@@ -17,5 +17,7 @@ namespace Assets.Scripts
         public static string WallTriggerTag = "WallTrigger";
         public static double PlayerFloorJumpReloadTime = 0.2;
         public static string KeyTag = "Key";
+        public static string DoorBox = "DoorBox";
+        public static string KeyHoleTag = "KeyHole";
     }
 }

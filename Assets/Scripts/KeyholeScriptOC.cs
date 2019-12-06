@@ -28,7 +28,7 @@ namespace Assets.Scripts
 
         void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.tag.Equals(Constants.WallTriggerTag))
+            if (other.gameObject.tag.Equals(Constants.KeyTag))
             {
                 Assert.IsNotNull(_trackedKey);
                 _trackedKey = null;
