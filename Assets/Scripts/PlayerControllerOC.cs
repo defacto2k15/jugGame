@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts;
 using UnityEngine;
 
@@ -17,20 +19,20 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
     private int _doubleJumpAttemptsLeft;
     private float _lastFloorJumpTime;
+    private Queue<Action> _fixedUpdateActions;
 
     public void Start()
     {
         _doubleJumpAttemptsLeft = 0;
-        Rigidbody.maxAngularVelocity = MaxAngularVelocity;
+        _fixedUpdateActions = new Queue<Action>();
+        _fixedUpdateActions.Enqueue(() => Rigidbody.maxAngularVelocity = MaxAngularVelocity);
     }
 
     void Update()
     {
         float horizontalMovement = Input.GetAxis("Horizontal");
         var horizontalMovementSpeed = Vector3.forward* horizontalMovement * HorizontalMovementSpeed;
-        Rigidbody.AddTorque(horizontalMovementSpeed);
-        Debug.Log("HMS is "+horizontalMovementSpeed);
-
+        _fixedUpdateActions.Enqueue(() => Rigidbody.AddTorque(horizontalMovementSpeed));
 
         if (GroundedChecker.IsTouchingGround)
         {
@@ -59,6 +61,14 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
         }
     }
 
+    void FixedUpdate()
+    {
+        while (_fixedUpdateActions.Any())
+        {
+            _fixedUpdateActions.Dequeue().Invoke();
+        }
+    }
+
     private void WallJump()
     {
         var collisionWallNormal = WallContactChecker.RetriveAndClearContactNormal().XZComponent();
@@ -67,7 +77,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
         var velocityOnPerpendicularComponent = VectorUtils.Project(Rigidbody.velocity, perpVector);
 
         var finalFlatVelocity = perpVector * velocityOnPerpendicularComponent;
-        Rigidbody.velocity = new Vector3(finalFlatVelocity.x, finalFlatVelocity.y, 0);
+        _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(finalFlatVelocity.x, finalFlatVelocity.y, 0));
 
         Jump(collisionWallNormal * WallJumpNormalPower);
         Jump(Vector3.up * WallJumpPerpendicularPower);
@@ -77,18 +87,18 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
     private void FloorJump()
     {
-        Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0, Rigidbody.velocity.z);
+        _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0, Rigidbody.velocity.z));
         _lastFloorJumpTime = Time.time;
         Jump(Vector3.up * UpJumpPower);
     }
 
     private void Jump(Vector3 vec)
     {
-        Rigidbody.AddForce(vec);
+        _fixedUpdateActions.Enqueue(() => Rigidbody.AddForce(vec));
     }
 
     public override void PlayerIsDead()
     {
-        Rigidbody.velocity = Vector3.zero;
+        _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = Vector3.zero);
     }
 }
