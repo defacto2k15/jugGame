@@ -15,16 +15,19 @@ namespace Assets.Scripts
         public GameObject VisibleAreaUpperRightPointMarker;
         public float ByPlayerVelocitySizeMultiplier;
         public float ByDistanceToCameraSizeMultiplier;
+        public float PositionPredictionTransformMultiplier;
         public Vector2 CameraOrtographicSizeLimits;
         public float PositionFollowingSpeed;
         public float SizeFollowingSpeed;
 
+        private Vector3 _velocityOffsetComponent;
 
         void Update()
         {
             CameraComponent.orthographicSize = CalculateSize();
             transform.position = CalculatePosition();
             AffirmCameraInVisibleSpace();
+            _velocityOffsetComponent = Vector3.zero;
         }
 
         private float CalculateSize()
@@ -46,8 +49,14 @@ namespace Assets.Scripts
 
         private Vector3 CalculatePosition()
         {
+            var targetPosition = new Vector3(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.y, transform.position.z);
+            var thisFrameVelocityComponent = new Vector3(PlayerRigidbody.velocity.x, PlayerRigidbody.velocity.y, 0);
+            _velocityOffsetComponent = Vector3.Lerp(_velocityOffsetComponent, thisFrameVelocityComponent*PositionPredictionTransformMultiplier, Time.time );
+            Debug.Log(_velocityOffsetComponent);
+            targetPosition += _velocityOffsetComponent;
+
             return Vector3.Lerp(
-                new Vector3(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.y, transform.position.z),
+                targetPosition,
                 transform.position,
                 1 - Time.deltaTime*PositionFollowingSpeed
             );

@@ -15,7 +15,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
     [Range(0, 100)] public float HorizontalMovementSpeed = 1;
     [Range(0, 500)] public float UpJumpPower = 1;
     [Range(0, 500)] public float WallJumpNormalPower = 1;
-    [Range(0, 500)] public float WallJumpPerpendicularPower = 1;
+    [Range(0, 1000)] public float WallJumpPerpendicularPower = 1;
 
     private int _doubleJumpAttemptsLeft;
     private float _lastFloorJumpTime;
@@ -30,10 +30,28 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
     void Update()
     {
-        float horizontalMovement = Input.GetAxis("Horizontal");
-        var horizontalMovementSpeed = Vector3.forward* horizontalMovement * HorizontalMovementSpeed;
-        _fixedUpdateActions.Enqueue(() => Rigidbody.AddTorque(horizontalMovementSpeed));
+        HandleHorizontalMovement();
 
+        HandleJumping();
+    }
+
+    void FixedUpdate()
+    {
+        while (_fixedUpdateActions.Any())
+        {
+            _fixedUpdateActions.Dequeue().Invoke();
+        }
+    }
+
+    private void HandleHorizontalMovement()
+    {
+        float horizontalMovement = Input.GetAxis("Horizontal");
+        var horizontalMovementSpeed = Vector3.back * horizontalMovement * HorizontalMovementSpeed;
+        _fixedUpdateActions.Enqueue(() => Rigidbody.AddTorque(horizontalMovementSpeed));
+    }
+
+    private void HandleJumping()
+    {
         if (GroundedChecker.IsTouchingGround)
         {
             _doubleJumpAttemptsLeft = Constants.PlayerDoubleJumpAttemptsDefaultCount;
@@ -42,7 +60,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
         if (Input.GetButtonDown("Jump"))
         {
-            if(GroundedChecker.IsNearGround && Mathf.Abs(Time.time - _lastFloorJumpTime ) > Constants.PlayerFloorJumpReloadTime)
+            if (GroundedChecker.IsNearGround && Mathf.Abs(Time.time - _lastFloorJumpTime) > Constants.PlayerFloorJumpReloadTime)
             {
                 FloorJump();
             }
@@ -54,18 +72,10 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
                 }
                 else if (_doubleJumpAttemptsLeft > 0)
                 {
-                    //JumpUp();
+                    FloorJump();
                     _doubleJumpAttemptsLeft--;
                 }
             }
-        }
-    }
-
-    void FixedUpdate()
-    {
-        while (_fixedUpdateActions.Any())
-        {
-            _fixedUpdateActions.Dequeue().Invoke();
         }
     }
 
@@ -81,8 +91,6 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
 
         Jump(collisionWallNormal * WallJumpNormalPower);
         Jump(Vector3.up * WallJumpPerpendicularPower);
-        Debug.Log("Wall jumping");
-
     }
 
     private void FloorJump()

@@ -14,6 +14,7 @@ namespace Assets.Scripts
         public Color PlayerConnectedColor;
         public Color DoorConnectedColor;
 
+        private GameObject _joinedPlayer;
         private KeyMode _mode;
 
         void Start()
@@ -44,7 +45,8 @@ namespace Assets.Scripts
         {
             if (_mode == KeyMode.ConnectedToPlayer)
             {
-                RemoveOldJoint();
+                Assert.IsNotNull(_joinedPlayer);
+                transform.position = new Vector3(_joinedPlayer.transform.position.x, _joinedPlayer.transform.position.y, transform.position.z);
             }
         }
 
@@ -65,6 +67,7 @@ namespace Assets.Scripts
                 {
                     var targetRigidbody = other.gameObject.GetComponent<Rigidbody>();
                     CreateSpringJoint(targetRigidbody);
+                    _joinedPlayer = targetRigidbody.gameObject;
 
                     _mode = KeyMode.ConnectedToPlayer;
                     SetColor();

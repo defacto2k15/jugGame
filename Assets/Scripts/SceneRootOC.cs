@@ -17,6 +17,7 @@ namespace Assets.Scripts
         public void Start()
         {
             Player.gameObject.transform.position = PlayerStartMarker.transform.position;
+            CameraObject.transform.position = new Vector3(Player.transform.position.x, Player.transform.position.y, CameraObject.transform.position.z);
         }
         public void Update()
         {
