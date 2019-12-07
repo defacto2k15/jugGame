@@ -11,21 +11,34 @@ namespace Assets.Scripts
     {
         public float DeathZoneY;
         public PlayerControllerOC Player;
-        public GameObject PlayerStartMarker;
-        public GameObject CameraObject;
+        public CheckpointScriptOC CurrentActiveCheckpoint;
+        private bool _sceneInitialized = false;
 
-        public void Start()
+        private void ResetPlayerToActiveCheckpoint()
         {
-            Player.gameObject.transform.position = PlayerStartMarker.transform.position;
-            CameraObject.transform.position = new Vector3(Player.transform.position.x, Player.transform.position.y, CameraObject.transform.position.z);
+            Player.transform.position = new Vector3(CurrentActiveCheckpoint.transform.position.x, CurrentActiveCheckpoint.transform.position.y,
+                Player.transform.position.z);
+            FindObjectsOfType<ReactingOnPlayerReset>().ToList().ForEach(c => c.PlayerIsReset());
         }
+
         public void Update()
         {
+            if (!_sceneInitialized)
+            {
+                ResetPlayerToActiveCheckpoint();
+                _sceneInitialized = true;
+            }
             if (Player.transform.position.y < DeathZoneY || Input.GetKeyDown(KeyCode.T))
             {
-                Player.transform.position = PlayerStartMarker.transform.position;
-                CameraObject.transform.position = new Vector3(PlayerStartMarker.transform.position.x, PlayerStartMarker.transform.position.y, CameraObject.transform.position.z);
-                FindObjectsOfType<ReactingOnPlayerDeath>().ToList().ForEach(c=>c.PlayerIsDead());
+                ResetPlayerToActiveCheckpoint();
+            }
+        }
+
+        public void PlayerEnteredCheckpoint(CheckpointScriptOC callingCheckpoint )
+        {
+            if (callingCheckpoint.CheckpointIndex > CurrentActiveCheckpoint.CheckpointIndex)
+            {
+                CurrentActiveCheckpoint = callingCheckpoint;
             }
         }
     }

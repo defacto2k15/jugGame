@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class CameraScriptOC : MonoBehaviour
+    public class CameraScriptOC : ReactingOnPlayerReset
     {
         public Camera CameraComponent;
         public Rigidbody PlayerRigidbody;
@@ -28,6 +28,11 @@ namespace Assets.Scripts
             transform.position = CalculatePosition();
             AffirmCameraInVisibleSpace();
             _velocityOffsetComponent = Vector3.zero;
+        }
+
+        public override void PlayerIsReset()
+        {
+            transform.position = new Vector3(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.y, transform.position.z);
         }
 
         private float CalculateSize()
@@ -52,7 +57,6 @@ namespace Assets.Scripts
             var targetPosition = new Vector3(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.y, transform.position.z);
             var thisFrameVelocityComponent = new Vector3(PlayerRigidbody.velocity.x, PlayerRigidbody.velocity.y, 0);
             _velocityOffsetComponent = Vector3.Lerp(_velocityOffsetComponent, thisFrameVelocityComponent*PositionPredictionTransformMultiplier, Time.time );
-            Debug.Log(_velocityOffsetComponent);
             targetPosition += _velocityOffsetComponent;
 
             return Vector3.Lerp(
@@ -61,7 +65,6 @@ namespace Assets.Scripts
                 1 - Time.deltaTime*PositionFollowingSpeed
             );
         }
-
 
         private Rect VisibleSpace
         {

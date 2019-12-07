@@ -5,7 +5,7 @@ using System.Linq;
 using Assets.Scripts;
 using UnityEngine;
 
-public class PlayerControllerOC : ReactingOnPlayerDeath
+public class PlayerControllerOC : ReactingOnPlayerReset
 {
     public Rigidbody Rigidbody;
     public GroundedCheckerOC GroundedChecker;
@@ -89,7 +89,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
         var finalFlatVelocity = perpVector * velocityOnPerpendicularComponent;
         _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(finalFlatVelocity.x, finalFlatVelocity.y, 0));
 
-        Jump(collisionWallNormal * WallJumpNormalPower);
+        Jump(new Vector3(collisionWallNormal.x, collisionWallNormal.y, 0) * WallJumpNormalPower);
         Jump(Vector3.up * WallJumpPerpendicularPower);
     }
 
@@ -105,7 +105,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
         _fixedUpdateActions.Enqueue(() => Rigidbody.AddForce(vec));
     }
 
-    public override void PlayerIsDead()
+    public override void PlayerIsReset()
     {
         _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = Vector3.zero);
     }

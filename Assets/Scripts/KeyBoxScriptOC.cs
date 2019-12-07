@@ -8,7 +8,7 @@ using UnityEngine.Assertions;
 
 namespace Assets.Scripts
 {
-    public class KeyBoxScriptOC : ReactingOnPlayerDeath
+    public class KeyBoxScriptOC : ReactingOnPlayerReset
     {
         public Color NotConnectedColor;
         public Color PlayerConnectedColor;
@@ -41,7 +41,7 @@ namespace Assets.Scripts
             GetComponentInChildren<MonocolorMaterialColorSetterOC>().SetColor( colorToSet);
         }
 
-        public override void PlayerIsDead()
+        public override void PlayerIsReset()
         {
             if (_mode == KeyMode.ConnectedToPlayer)
             {

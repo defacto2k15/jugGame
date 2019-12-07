@@ -7,9 +7,9 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public abstract class ReactingOnPlayerDeath : MonoBehaviour
+    public abstract class ReactingOnPlayerReset : MonoBehaviour
     {
-        public virtual void PlayerIsDead()
+        public virtual void PlayerIsReset()
         {
 
         }
