@@ -9,6 +9,7 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
     public GroundedCheckerOC GroundedChecker;
     public WallContactCheckerOC WallContactChecker;
 
+    [Range(0, 100)] public float MaxAngularVelocity= 100;
     [Range(0, 100)] public float HorizontalMovementSpeed = 1;
     [Range(0, 500)] public float UpJumpPower = 1;
     [Range(0, 500)] public float WallJumpNormalPower = 1;
@@ -20,12 +21,15 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
     public void Start()
     {
         _doubleJumpAttemptsLeft = 0;
+        Rigidbody.maxAngularVelocity = MaxAngularVelocity;
     }
 
     void Update()
     {
         float horizontalMovement = Input.GetAxis("Horizontal");
-        Rigidbody.AddTorque(Vector3.back * horizontalMovement * HorizontalMovementSpeed);
+        var horizontalMovementSpeed = Vector3.forward* horizontalMovement * HorizontalMovementSpeed;
+        Rigidbody.AddTorque(horizontalMovementSpeed);
+        Debug.Log("HMS is "+horizontalMovementSpeed);
 
 
         if (GroundedChecker.IsTouchingGround)
@@ -38,10 +42,6 @@ public class PlayerControllerOC : ReactingOnPlayerDeath
         {
             if(GroundedChecker.IsNearGround && Mathf.Abs(Time.time - _lastFloorJumpTime ) > Constants.PlayerFloorJumpReloadTime)
             {
-                if (_lastFloorJumpTime > 0)
-                {
-                    Debug.Log("Rtti");
-                }
                 FloorJump();
             }
             else

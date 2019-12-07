@@ -10,6 +10,7 @@ TagManager:
   - FloorTrigger
   - Key
   - DoorBox
+  - KeyHole
   layers:
   - Default
   - TransparentFX

@@ -7,24 +7,18 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class CameraScriptOC : ReactingOnPlayerDeath
+    public class CameraScriptOC : MonoBehaviour
     {
         public Camera CameraComponent;
         public Rigidbody PlayerRigidbody;
-        public float ByPlayerVelocitySizeMultiplier;
-        public float ByDistanceToCameraSizeMultiplier;
-        public Vector2 SizeLimits;
-        public float FollowingSpeed;
         public GameObject VisibleAreaDownLeftPointMarker;
         public GameObject VisibleAreaUpperRightPointMarker;
+        public float ByPlayerVelocitySizeMultiplier;
+        public float ByDistanceToCameraSizeMultiplier;
+        public Vector2 CameraOrtographicSizeLimits;
+        public float PositionFollowingSpeed;
+        public float SizeFollowingSpeed;
 
-        private Queue<float> _sizeSamplesCount;
-
-
-        void Start()
-        {
-            ResetSamplesCount();
-        }
 
         void Update()
         {
@@ -45,12 +39,9 @@ namespace Assets.Scripts
 
             var sizeByVelocity = PlayerRigidbody.velocity.magnitude * ByPlayerVelocitySizeMultiplier;
 
-            var newSizeSample = Mathf.Min(SizeLimits.y, Mathf.Max(new[] {sizeByDistance, sizeByVelocity, SizeLimits.x}));
+            var newSizeSample = Mathf.Min(CameraOrtographicSizeLimits.y, Mathf.Max(new[] {sizeByDistance, sizeByVelocity, CameraOrtographicSizeLimits.x}));
 
-            _sizeSamplesCount.Dequeue();
-            _sizeSamplesCount.Enqueue(newSizeSample);
-            var finalSize = _sizeSamplesCount.Average();
-            return finalSize;
+            return Mathf.Lerp(newSizeSample, CameraComponent.orthographicSize, 1-Time.deltaTime*SizeFollowingSpeed);
         }
 
         private Vector3 CalculatePosition()
@@ -58,19 +49,10 @@ namespace Assets.Scripts
             return Vector3.Lerp(
                 new Vector3(PlayerRigidbody.transform.position.x, PlayerRigidbody.transform.position.y, transform.position.z),
                 transform.position,
-                1 - Time.deltaTime*FollowingSpeed
+                1 - Time.deltaTime*PositionFollowingSpeed
             );
         }
 
-        public override void PlayerIsDead()
-        {
-            ResetSamplesCount();
-        }
-
-        private void ResetSamplesCount()
-        {
-            _sizeSamplesCount = new Queue<float>(Enumerable.Range(0,30).Select(c=>SizeLimits.x));
-        }
 
         private Rect VisibleSpace
         {
@@ -88,7 +70,7 @@ namespace Assets.Scripts
             get
             {
                 var orthographicSize = CameraComponent.orthographicSize;
-                var worldSpaceScreenSize = Vector2.zero;
+                Vector2 worldSpaceScreenSize;
                 float widthToHeightRatio = ((float) Screen.width / Screen.height);
                 if (Screen.width > Screen.height)
                 {
