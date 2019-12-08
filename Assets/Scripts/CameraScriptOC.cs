@@ -24,8 +24,8 @@ namespace Assets.Scripts
 
         void Update()
         {
-            CameraComponent.orthographicSize = CalculateSize();
             transform.position = CalculatePosition();
+            CameraComponent.orthographicSize = CalculateSize();
             AffirmCameraInVisibleSpace();
             _velocityOffsetComponent = Vector3.zero;
         }

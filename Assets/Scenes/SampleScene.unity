@@ -436,6 +436,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Rigidbody: {fileID: 203666515}
+  SphereCollider: {fileID: 203666516}
   GroundedChecker: {fileID: 203666520}
   WallContactChecker: {fileID: 203666521}
   MaxAngularVelocity: 30
@@ -470,9 +471,9 @@ Rigidbody:
   m_AngularDrag: 0.5
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 88
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!135 &203666516
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1320,7 +1321,7 @@ MonoBehaviour:
   VisibleAreaDownLeftPointMarker: {fileID: 256799413}
   VisibleAreaUpperRightPointMarker: {fileID: 1314070721}
   ByPlayerVelocitySizeMultiplier: 1
-  ByDistanceToCameraSizeMultiplier: 1
+  ByDistanceToCameraSizeMultiplier: 0
   PositionPredictionTransformMultiplier: 2
   CameraOrtographicSizeLimits: {x: 7, y: 30}
   PositionFollowingSpeed: 1
@@ -3919,6 +3920,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2096479959}
     m_Modifications:
+    - target: {fileID: 239201697812057317, guid: e15a431aceef0114f8eca5665ff76012,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6648859184311810442, guid: e15a431aceef0114f8eca5665ff76012,
         type: 3}
       propertyPath: m_LocalPosition.x

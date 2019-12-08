@@ -8,6 +8,7 @@ using UnityEngine;
 public class PlayerControllerOC : ReactingOnPlayerReset
 {
     public Rigidbody Rigidbody;
+    public SphereCollider SphereCollider;
     public GroundedCheckerOC GroundedChecker;
     public WallContactCheckerOC WallContactChecker;
 
@@ -72,32 +73,68 @@ public class PlayerControllerOC : ReactingOnPlayerReset
                 }
                 else if (_doubleJumpAttemptsLeft > 0)
                 {
-                    FloorJump();
+                    DoubleJump();
                     _doubleJumpAttemptsLeft--;
                 }
             }
         }
     }
 
+    private void DoubleJump()
+    {
+        var yVelocity = Rigidbody.velocity.y;
+        yVelocity = Mathf.Max(0, yVelocity);
+        _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, yVelocity, Rigidbody.velocity.z));
+        Jump(Vector3.up*UpJumpPower);
+    }
+
     private void WallJump()
     {
-        var collisionWallNormal = WallContactChecker.RetriveAndClearContactNormal().XZComponent();
-        var perpVector = Vector2.Perpendicular(collisionWallNormal);
-        var velocityOnNormalComponent = VectorUtils.Project(Rigidbody.velocity, collisionWallNormal);
-        var velocityOnPerpendicularComponent = VectorUtils.Project(Rigidbody.velocity, perpVector);
+        var collisionNormal = WallContactChecker.RetriveAndClearContactNormal().XYComponent();
+        var perpVector = Vector2.Perpendicular(collisionNormal);
+        if (perpVector.y < 0)
+        {
+            perpVector.y *= -1;
+        }
 
-        var finalFlatVelocity = perpVector * velocityOnPerpendicularComponent;
-        _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(finalFlatVelocity.x, finalFlatVelocity.y, 0));
-
-        Jump(new Vector3(collisionWallNormal.x, collisionWallNormal.y, 0) * WallJumpNormalPower);
-        Jump(Vector3.up * WallJumpPerpendicularPower);
+        ResolveCollisionJump(collisionNormal, perpVector, WallJumpNormalPower, WallJumpPerpendicularPower);
     }
 
     private void FloorJump()
     {
-        _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0, Rigidbody.velocity.z));
+        var collisionNormal = new Vector2(0,1);
+        var perpVector = Vector2.Perpendicular(collisionNormal);
+        ResolveCollisionJump(collisionNormal, perpVector, UpJumpPower,0);
+
         _lastFloorJumpTime = Time.time;
-        Jump(Vector3.up * UpJumpPower);
+    }
+
+    private void ResolveCollisionJump(Vector2 collisionNormal, Vector2 perpVector, float normalJumpPower, float perpJumpPower)
+    {
+        var flatVelocity = Rigidbody.velocity.XYComponent();
+        var collisionAngle = Vector2.Dot(collisionNormal, flatVelocity.normalized);
+
+        if (flatVelocity.magnitude < 0.0001f || collisionAngle > 0)
+        {
+            //nothing to do, after collision, just add force
+        }
+        else
+        {
+            // before jumping, we simulate collision
+            var normalVelocity = VectorUtils.Project(flatVelocity, collisionNormal);
+            var perpendicularVelocity = VectorUtils.Project(flatVelocity, perpVector);
+
+            var bounciness = SphereCollider.material.bounciness * 0.5f; // 0.5 simulates unity calculations ok
+            var oldEnergy = Rigidbody.mass * Mathf.Pow(normalVelocity, 2);
+            var newEnergy = oldEnergy * bounciness;
+            var newNormalVelocity = Mathf.Pow(newEnergy / Rigidbody.mass, 0.2f); //0.2 makes up-collisions less powerful
+
+            var newFlatVelocity = collisionNormal * newNormalVelocity + perpVector * perpendicularVelocity;
+            _fixedUpdateActions.Enqueue(() => Rigidbody.velocity = new Vector3(newFlatVelocity.x, newFlatVelocity.y, 0));
+        }
+
+        Jump(collisionNormal * normalJumpPower);
+        Jump(perpVector * perpJumpPower);
     }
 
     private void Jump(Vector3 vec)

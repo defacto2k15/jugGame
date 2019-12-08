@@ -28,7 +28,7 @@ namespace Assets.Scripts
                 ResetPlayerToActiveCheckpoint();
                 _sceneInitialized = true;
             }
-            if (Player.transform.position.y < DeathZoneY || Input.GetKeyDown(KeyCode.T))
+            if (Player.transform.position.y < DeathZoneY || Input.GetKeyDown(KeyCode.R))
             {
                 ResetPlayerToActiveCheckpoint();
             }
