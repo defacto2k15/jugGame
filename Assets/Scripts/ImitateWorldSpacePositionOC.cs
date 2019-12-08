@@ -18,7 +18,5 @@ namespace Assets.Scripts
                 transform.position = TargetObject.transform.position;
             }
         }
-
-
     }
 }
